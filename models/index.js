@@ -1,4 +1,4 @@
-﻿const { Sequelize, DataTypes, Op } = require('sequelize');
+const { Sequelize, DataTypes, Op } = require('sequelize');
 const { sequelize } = require('../config/database');
 
 const PassengerModel = require('./passenger');
@@ -7,6 +7,7 @@ const StaffModel = require('./staff');
 const RoleModel = require('./role');
 const PermissionModel = require('./permission');
 const AdminModel = require('./admin');
+const WalletModel = require('./wallet');
 
 const Passenger = PassengerModel(sequelize, DataTypes);
 const Driver = DriverModel(sequelize, DataTypes);
@@ -14,6 +15,7 @@ const Staff = StaffModel(sequelize, DataTypes);
 const Role = RoleModel(sequelize, DataTypes);
 const Permission = PermissionModel(sequelize, DataTypes);
 const Admin = AdminModel(sequelize, DataTypes);
+const Wallet = WalletModel(sequelize, DataTypes);
 
 // Roles and permissions (explicit FK names to match existing schema)
 Role.belongsToMany(Permission, {
@@ -82,10 +84,20 @@ Role.belongsToMany(Admin, {
   otherKey: { name: 'AdminId', field: 'AdminId' },
 });
 
+// Wallet associations (alias to avoid collision with Driver.wallet attribute)
+Driver.hasOne(Wallet, {
+  as: 'walletAccount',
+  foreignKey: { name: 'driverId', field: 'driver_id' },
+});
+Wallet.belongsTo(Driver, {
+  as: 'driver',
+  foreignKey: { name: 'driverId', field: 'driver_id' },
+});
+
 module.exports = {
 sequelize,
 Sequelize,
 DataTypes,
 Op,
-models: { Passenger, Driver, Staff, Role, Permission, Admin },
+models: { Passenger, Driver, Staff, Role, Permission, Admin, Wallet },
 };

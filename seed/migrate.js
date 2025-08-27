@@ -23,6 +23,20 @@ async function migrate() {
     }
 
     try {
+      await sequelize.getQueryInterface().addColumn('passengers', 'contract_id', {
+        type: DataTypes.STRING,
+        allowNull: true
+      });
+      console.log('Added contract_id column to passengers table');
+    } catch (error) {
+      if (error.message.includes('Duplicate column name')) {
+        console.log('contract_id column already exists in passengers table');
+      } else {
+        console.error('Error adding contract_id to passengers:', error.message);
+      }
+    }
+
+    try {
       await sequelize.getQueryInterface().addColumn('passengers', 'emergency_contacts', {
         type: DataTypes.TEXT,
         allowNull: true
@@ -66,6 +80,32 @@ async function migrate() {
       } else {
         console.error('Error adding email to drivers:', error.message);
       }
+    }
+
+    // Create wallets table if it doesn't exist
+    try {
+      const qi = sequelize.getQueryInterface();
+      const tables = await qi.showAllTables();
+      const hasWallets = Array.isArray(tables) && tables.map(t => (typeof t === 'object' ? t.tableName || t.table_name : t)).includes('wallets');
+      if (!hasWallets) {
+        await qi.createTable('wallets', {
+          id: { type: DataTypes.INTEGER, autoIncrement: true, primaryKey: true },
+          driver_id: {
+            type: DataTypes.INTEGER,
+            allowNull: false,
+            references: { model: 'drivers', key: 'id' },
+            onUpdate: 'CASCADE',
+            onDelete: 'CASCADE'
+          },
+          balance: { type: DataTypes.DECIMAL(10, 2), allowNull: false, defaultValue: 0 },
+          payment_method: { type: DataTypes.STRING, allowNull: true },
+        });
+        console.log('Created wallets table');
+      } else {
+        console.log('wallets table already exists');
+      }
+    } catch (error) {
+      console.error('Error creating wallets table:', error.message);
     }
 
     try {
