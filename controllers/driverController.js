@@ -1,18 +1,17 @@
-﻿const { models } = require('../models');
+const { models } = require('../models');
 const { hashPassword } = require('../utils/password');
 
-module.exports = {
-async create(req, res) {
+exports.create = async (req, res) => {
 try {
 const data = req.body;
 if (data.password) data.password = await hashPassword(data.password);
 const row = await models.Driver.create(data);
 return res.status(201).json(row);
 } catch (e) { return res.status(500).json({ message: e.message }); }
-},
-async list(req, res) { try { const rows = await models.Driver.findAll({ include: ['roles'] }); return res.json(rows); } catch (e) { return res.status(500).json({ message: e.message }); } },
-async get(req, res) { try { const row = await models.Driver.findByPk(req.params.id, { include: ['roles'] }); if (!row) return res.status(404).json({ message: 'Not found' }); return res.json(row); } catch (e) { return res.status(500).json({ message: e.message }); } },
-async update(req, res) {
+};
+exports.list = async (req, res) => { try { const rows = await models.Driver.findAll({ include: ['roles'] }); return res.json(rows); } catch (e) { return res.status(500).json({ message: e.message }); } };
+exports.get = async (req, res) => { try { const row = await models.Driver.findByPk(req.params.id, { include: ['roles'] }); if (!row) return res.status(404).json({ message: 'Not found' }); return res.json(row); } catch (e) { return res.status(500).json({ message: e.message }); } };
+exports.update = async (req, res) => {
 try {
 const data = req.body;
 if (data.password) data.password = await hashPassword(data.password);
@@ -21,20 +20,20 @@ if (!count) return res.status(404).json({ message: 'Not found' });
 const updated = await models.Driver.findByPk(req.params.id);
 return res.json(updated);
 } catch (e) { return res.status(500).json({ message: e.message }); }
-},
-async remove(req, res) { try { const count = await models.Driver.destroy({ where: { id: req.params.id } }); if (!count) return res.status(404).json({ message: 'Not found' }); return res.status(204).send(); } catch (e) { return res.status(500).json({ message: e.message }); } },
+};
+exports.remove = async (req, res) => { try { const count = await models.Driver.destroy({ where: { id: req.params.id } }); if (!count) return res.status(404).json({ message: 'Not found' }); return res.status(204).send(); } catch (e) { return res.status(500).json({ message: e.message }); } };
 
 // Driver self-control methods
-async getMyProfile(req, res) {
+exports.getMyProfile = async (req, res) => {
 try {
 if (req.user.type !== 'driver') return res.status(403).json({ message: 'Only drivers can access this endpoint' });
 const driver = await models.Driver.findByPk(req.user.id, { include: ['roles'] });
 if (!driver) return res.status(404).json({ message: 'Driver not found' });
 return res.json(driver);
 } catch (e) { return res.status(500).json({ message: e.message }); }
-},
+};
 
-async updateMyProfile(req, res) {
+exports.updateMyProfile = async (req, res) => {
 try {
 if (req.user.type !== 'driver') return res.status(403).json({ message: 'Only drivers can access this endpoint' });
 const data = req.body;
@@ -44,9 +43,9 @@ if (!count) return res.status(404).json({ message: 'Driver not found' });
 const updated = await models.Driver.findByPk(req.user.id);
 return res.json(updated);
 } catch (e) { return res.status(500).json({ message: e.message }); }
-},
+};
 
-async toggleMyAvailability(req, res) {
+exports.toggleMyAvailability = async (req, res) => {
 try {
 if (req.user.type !== 'driver') return res.status(403).json({ message: 'Only drivers can toggle availability' });
 const driver = await models.Driver.findByPk(req.user.id);
@@ -55,9 +54,9 @@ driver.availability = !driver.availability;
 await driver.save();
 return res.json({ message: 'Availability updated', availability: driver.availability });
 } catch (e) { return res.status(500).json({ message: e.message }); }
-},
+};
 
-async toggleAvailability(req, res) {
+exports.toggleAvailability = async (req, res) => {
 try {
 const driver = await models.Driver.findByPk(req.params.id);
 if (!driver) return res.status(404).json({ message: 'Driver not found' });
@@ -65,9 +64,9 @@ driver.availability = !driver.availability;
 await driver.save();
 return res.json(driver);
 } catch (e) { return res.status(500).json({ message: e.message }); }
-},
+};
 
-async uploadDocuments(req, res) {
+exports.uploadDocuments = async (req, res) => {
 try {
 const driver = await models.Driver.findByPk(req.params.id);
 if (!driver) return res.status(404).json({ message: 'Driver not found' });
@@ -90,10 +89,10 @@ if (Object.keys(updateData).length > 0) {
 const updated = await models.Driver.findByPk(req.params.id);
 return res.json({ message: 'Documents uploaded successfully', driver: updated, uploadedFiles: Object.keys(updateData).filter(k => k !== 'documentStatus') });
 } catch (e) { return res.status(500).json({ message: e.message }); }
-},
+};
 
 // Driver rates passenger
-async ratePassenger(req, res) {
+exports.ratePassenger = async (req, res) => {
 try {
 if (req.user.type !== 'driver') return res.status(403).json({ message: 'Only drivers can rate passengers' });
 const { rating, comment } = req.body;
@@ -111,5 +110,4 @@ await models.Passenger.update({ rating: newRating, ratingCount: newRatingCount }
 const updatedPassenger = await models.Passenger.findByPk(passengerId);
 return res.json({ message: 'Passenger rated successfully', passenger: updatedPassenger, rating, comment });
 } catch (e) { return res.status(500).json({ message: e.message }); }
-},
 };

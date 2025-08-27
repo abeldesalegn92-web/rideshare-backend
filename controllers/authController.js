@@ -1,4 +1,4 @@
-﻿const jwt = require('jsonwebtoken');
+const jwt = require('jsonwebtoken');
 const { models } = require('../models');
 const { hashPassword, comparePassword } = require('../utils/password');
 const rateLimit = require('../middleware/rateLimit');
@@ -8,7 +8,7 @@ function sign(payload) {
 return jwt.sign(payload, process.env.JWT_SECRET || 'secret', { expiresIn: '7d' });
 }
 
-async function registerPassenger(req, res) {
+exports.registerPassenger = async (req, res) => {
 try {
 const { name, phone, email, password, emergencyContacts } = req.body;
 const exists = await models.Passenger.findOne({ where: { phone } });
@@ -20,7 +20,7 @@ return res.status(201).json({ token, passenger });
 } catch (e) { return res.status(500).json({ message: e.message }); }
 }
 
-async function loginPassenger(req, res) {
+exports.loginPassenger = async (req, res) => {
 try {
 const { email, password } = req.body;
 if (!email || !password) return res.status(400).json({ message: 'Email and password are required' });
@@ -34,7 +34,7 @@ return res.json({ token, passenger });
 } catch (e) { return res.status(500).json({ message: e.message }); }
 }
 
-async function registerDriver(req, res) {
+exports.registerDriver = async (req, res) => {
 try {
 const { name, phone, email, password } = req.body;
 const exists = await models.Driver.findOne({ where: { phone } });
@@ -46,7 +46,7 @@ return res.status(201).json({ token, driver });
 } catch (e) { return res.status(500).json({ message: e.message }); }
 }
 
-async function loginDriver(req, res) {
+exports.loginDriver = async (req, res) => {
 try {
 const { email, password } = req.body;
 if (!email || !password) return res.status(400).json({ message: 'Email and password are required' });
@@ -60,7 +60,7 @@ return res.json({ token, driver });
 } catch (e) { return res.status(500).json({ message: e.message }); }
 }
 
-async function registerStaff(req, res) {
+exports.registerStaff = async (req, res) => {
 try {
 const { fullName, username, password } = req.body;
 const exists = await models.Staff.findOne({ where: { username } });
@@ -72,7 +72,7 @@ return res.status(201).json({ token, staff });
 } catch (e) { return res.status(500).json({ message: e.message }); }
 }
 
-async function loginStaff(req, res) {
+exports.loginStaff = async (req, res) => {
 try {
 const { username, password } = req.body;
 const staff = await models.Staff.findOne({ where: { username }, include: [{ association: 'roles', include: ['permissions'] }] });
@@ -86,7 +86,7 @@ return res.json({ token, staff });
 } catch (e) { return res.status(500).json({ message: e.message }); }
 }
 
-async function registerAdmin(req, res) {
+exports.registerAdmin = async (req, res) => {
 try {
 const { fullName, username, password } = req.body;
 const exists = await models.Admin.findOne({ where: { username } });
@@ -112,9 +112,4 @@ return res.json({ token, admin });
 } catch (e) { return res.status(500).json({ message: e.message }); }
 }
 
-module.exports = {
-registerPassenger, loginPassenger,
-registerDriver, loginDriver,
-registerStaff, loginStaff,
-registerAdmin, loginAdmin,
-};
+
