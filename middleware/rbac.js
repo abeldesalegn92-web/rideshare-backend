@@ -10,6 +10,8 @@ next();
 function requirePermissions(...perms) {
 return (req, res, next) => {
 if (!req.user) return res.status(401).json({ message: 'Unauthorized' });
+// Allow all actions for authenticated admins in admin panel
+if (req.user.type === 'admin') return next();
 const roles = req.user.roles || [];
 const isSuperAdmin = roles.some((r) => r === 'superadmin' || r?.name === 'superadmin');
 if (isSuperAdmin) return next();
