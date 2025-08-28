@@ -46,6 +46,15 @@ return res.json(updated);
 } catch (e) { return res.status(500).json({ message: e.message }); }
 };
 
+exports.deleteMyAccount = async (req, res) => {
+try {
+if (req.user.type !== 'passenger') return res.status(403).json({ message: 'Only passengers can delete their account' });
+const count = await models.Passenger.destroy({ where: { id: req.user.id } });
+if (!count) return res.status(404).json({ message: 'Passenger not found' });
+return res.status(204).send();
+} catch (e) { return res.status(500).json({ message: e.message }); }
+};
+
 // Passengers rate drivers
 exports.rateDriver = async (req, res) => {
 try {
