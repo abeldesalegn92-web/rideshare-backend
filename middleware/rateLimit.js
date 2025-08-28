@@ -13,6 +13,6 @@ next();
 };
 }
 
-module.exports = rateLimit;
+exports.rateLimit = rateLimit;
 
 

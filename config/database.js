@@ -1,4 +1,4 @@
-﻿const { Sequelize } = require('sequelize');
+const { Sequelize } = require('sequelize');
 require('dotenv').config();
 
 const database = process.env.DB_NAME || 'rideshare_db';
@@ -19,4 +19,4 @@ define: {
 },
 });
 
-module.exports = { sequelize };
+exports.sequelize = sequelize;

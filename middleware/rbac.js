@@ -21,4 +21,5 @@ if (!ok) return res.status(403).json({ message: 'Forbidden' });
 next();
 };
 }
-module.exports = { requireRoles, requirePermissions };
+exports.requireRoles = requireRoles;
+exports.requirePermissions = requirePermissions;
