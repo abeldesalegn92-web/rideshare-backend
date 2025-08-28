@@ -1,4 +1,4 @@
-﻿const express = require('express');
+const express = require('express');
 const morgan = require('morgan');
 const cors = require('cors');
 require('dotenv').config();
@@ -21,7 +21,7 @@ const port = Number(process.env.PORT || 3000);
 async function start() {
 try {
 await sequelize.authenticate();
-await sequelize.sync();
+await sequelize.sync({ alter: true });
 app.listen(port, () => console.log(`Server running on http://localhost:${port}`));
 } catch (e) {
 console.error('Failed to start', e);
