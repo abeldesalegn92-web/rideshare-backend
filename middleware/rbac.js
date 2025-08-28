@@ -1,4 +1,4 @@
-﻿function requireRoles(...allowedRoles) {
+function requireRoles(...allowedRoles) {
 return (req, res, next) => {
 if (!req.user) return res.status(401).json({ message: 'Unauthorized' });
 const roles = req.user.roles || [];
@@ -10,6 +10,9 @@ next();
 function requirePermissions(...perms) {
 return (req, res, next) => {
 if (!req.user) return res.status(401).json({ message: 'Unauthorized' });
+const roles = req.user.roles || [];
+const isSuperAdmin = roles.some((r) => r === 'superadmin' || r?.name === 'superadmin');
+if (isSuperAdmin) return next();
 const userPerms = req.user.permissions || [];
 const ok = perms.every((p) => userPerms.includes(p));
 if (!ok) return res.status(403).json({ message: 'Forbidden' });
