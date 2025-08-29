@@ -28,7 +28,7 @@ const passenger = await models.Passenger.unscoped().findOne({ where: { email } }
 if (!passenger) return res.status(404).json({ message: 'Not found' });
 const ok = await comparePassword(password, passenger.password);
 if (!ok) return res.status(401).json({ message: 'Invalid credentials' });
-const token = sign({ id: passenger.id, type: 'passenger', roles: [], permissions: [] });
+const token = sign({ id: passenger.id, type: 'passenger' });
 const safePassenger = passenger.get({ plain: true }); delete safePassenger.password;
 return res.json({ token, passenger: safePassenger });
 } catch (e) { return res.status(500).json({ message: e.message }); }
@@ -54,7 +54,7 @@ const driver = await models.Driver.unscoped().findOne({ where: { email } });
 if (!driver) return res.status(404).json({ message: 'Not found' });
 const ok = await comparePassword(password, driver.password);
 if (!ok) return res.status(401).json({ message: 'Invalid credentials' });
-const token = sign({ id: driver.id, type: 'driver', roles: [], permissions: [] });
+const token = sign({ id: driver.id, type: 'driver' });
 const safeDriver = driver.get({ plain: true }); delete safeDriver.password;
 return res.json({ token, driver: safeDriver });
 } catch (e) { return res.status(500).json({ message: e.message }); }
