@@ -103,7 +103,9 @@ return res.json({ message: 'Documents uploaded successfully', driver: updated, u
 // Driver rates passenger
 exports.ratePassenger = async (req, res) => {
 try {
-if (req.user.type !== 'driver') return res.status(403).json({ message: 'Only drivers can rate passengers' });
+const roles = req.user.roles || [];
+const isDriver = req.user.type === 'driver' || roles.includes('driver') || roles.some(r => r?.name === 'driver');
+if (!isDriver) return res.status(403).json({ message: 'Only drivers can rate passengers' });
 const { rating, comment } = req.body;
 const passengerId = req.params.passengerId;
 
