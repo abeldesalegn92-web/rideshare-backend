@@ -17,14 +17,12 @@ carPlate: { type: DataTypes.STRING },
 carModel: { type: DataTypes.STRING },
 carColor: { type: DataTypes.STRING },
 availability: { type: DataTypes.BOOLEAN, defaultValue: false },
-drivingLicenseNumber: { type: DataTypes.STRING },
 bankAccountNo: { type: DataTypes.STRING },
-verification: { type: DataTypes.BOOLEAN, defaultValue: false },
+status: { type: DataTypes.ENUM('pending','approved','rejected','suspended'), allowNull: false, defaultValue: 'pending' },
 carServiceDate: { type: DataTypes.DATE, allowNull: true },
 bolloRenewalDate: { type: DataTypes.DATE, allowNull: true },
 insuranceExpiry: { type: DataTypes.DATE, allowNull: true },
 emergencyContacts: { type: DataTypes.TEXT, allowNull: true },
-documentStatus: { type: DataTypes.STRING, allowNull: true },
 }, { tableName: 'drivers', underscored: true, defaultScope: { attributes: { exclude: ['password'] } } });
 return Driver;
 };

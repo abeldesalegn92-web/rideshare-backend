@@ -23,32 +23,13 @@ return res.json(updated);
 };
 exports.remove = async (req, res) => { try { const count = await models.Admin.destroy({ where: { id: req.params.id } }); if (!count) return res.status(404).json({ message: 'Not found' }); return res.status(204).send(); } catch (e) { return res.status(500).json({ message: e.message }); } };
 
-exports.approveDriver = async (req, res) => {
+exports.setDriverStatus = async (req, res) => {
 try {
+const { status } = req.body; // expected: pending | approved | rejected | suspended
+if (!['pending','approved','rejected','suspended'].includes(status)) return res.status(400).json({ message: 'Invalid status' });
 const driver = await models.Driver.findByPk(req.params.driverId);
 if (!driver) return res.status(404).json({ message: 'Driver not found' });
-// Toggle verification only; document status controlled by approve/reject endpoints
-driver.verification = !driver.verification;
-await driver.save();
-return res.json(driver);
-} catch (e) { return res.status(500).json({ message: e.message }); }
-};
-
-exports.approveDriverDocuments = async (req, res) => {
-try {
-const driver = await models.Driver.findByPk(req.params.driverId);
-if (!driver) return res.status(404).json({ message: 'Driver not found' });
-driver.documentStatus = 'approved';
-await driver.save();
-return res.json(driver);
-} catch (e) { return res.status(500).json({ message: e.message }); }
-};
-
-exports.rejectDriverDocuments = async (req, res) => {
-try {
-const driver = await models.Driver.findByPk(req.params.driverId);
-if (!driver) return res.status(404).json({ message: 'Driver not found' });
-driver.documentStatus = 'rejected';
+driver.status = status;
 await driver.save();
 return res.json(driver);
 } catch (e) { return res.status(500).json({ message: e.message }); }
@@ -59,7 +40,7 @@ try {
 const drivers = await models.Driver.findAll({
 where: {
   [Op.and]: [
-    { [Op.or]: [{ documentStatus: 'pending' }, { documentStatus: null }] },
+    { [Op.or]: [{ status: 'pending' }] },
     { [Op.or]: [
       { drivingLicenseFile: { [Op.ne]: null } },
       { nationalIdFile: { [Op.ne]: null } },

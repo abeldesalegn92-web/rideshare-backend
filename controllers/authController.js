@@ -5,7 +5,7 @@ const rateLimit = require('../middleware/rateLimit');
 require('dotenv').config();
 
 function sign(payload) {
-return jwt.sign(payload, process.env.JWT_SECRET || 'secret', { expiresIn: '7d' });
+return jwt.sign(payload, process.env.JWT_SECRET || 'secret', { expiresIn: process.env.JWT_EXPIRES || '7d' });
 }
 
 exports.registerPassenger = async (req, res) => {
@@ -15,7 +15,9 @@ const exists = await models.Passenger.findOne({ where: { phone } });
 if (exists) return res.status(409).json({ message: 'Phone already registered' });
 const hashed = await hashPassword(password);
 const passenger = await models.Passenger.create({ name, phone, email, emergencyContacts, password: hashed });
-const token = sign({ id: passenger.id, type: 'passenger', roles: [], permissions: [] });
+const [passengerRole] = await models.Role.findOrCreate({ where: { name: 'passenger' }, defaults: { name: 'passenger' } });
+await passenger.setRoles([passengerRole]);
+const token = sign({ id: passenger.id, type: 'passenger', roles: ['passenger'], permissions: [] });
 return res.status(201).json({ token, passenger });
 } catch (e) { return res.status(500).json({ message: e.message }); }
 }
@@ -41,7 +43,9 @@ const exists = await models.Driver.findOne({ where: { phone } });
 if (exists) return res.status(409).json({ message: 'Phone already registered' });
 const hashed = await hashPassword(password);
 const driver = await models.Driver.create({ name, phone, email, password: hashed });
-const token = sign({ id: driver.id, type: 'driver', roles: [], permissions: [] });
+const [driverRole] = await models.Role.findOrCreate({ where: { name: 'driver' }, defaults: { name: 'driver' } });
+await driver.setRoles([driverRole]);
+const token = sign({ id: driver.id, type: 'driver', roles: ['driver'], permissions: [] });
 return res.status(201).json({ token, driver });
 } catch (e) { return res.status(500).json({ message: e.message }); }
 }
@@ -52,6 +56,7 @@ const { email, password } = req.body;
 if (!email || !password) return res.status(400).json({ message: 'Email and password are required' });
 const driver = await models.Driver.findOne({ where: { email }, include: ['roles'] });
 if (!driver) return res.status(404).json({ message: 'Not found' });
+if (driver.status !== 'approved') return res.status(403).json({ message: 'Driver not approved' });
 const ok = await comparePassword(password, driver.password);
 if (!ok) return res.status(401).json({ message: 'Invalid credentials' });
 const roleNames = (driver.roles || []).map(r => r.name);
@@ -86,17 +91,7 @@ return res.json({ token, staff });
 } catch (e) { return res.status(500).json({ message: e.message }); }
 }
 
-exports.registerAdmin = async (req, res) => {
-try {
-const { fullName, username, password } = req.body;
-const exists = await models.Admin.findOne({ where: { username } });
-if (exists) return res.status(409).json({ message: 'Username already exists' });
-const hashed = await hashPassword(password);
-const admin = await models.Admin.create({ fullName, username, password: hashed });
-const token = sign({ id: admin.id, type: 'admin', roles: ['superadmin'], permissions: [] });
-return res.status(201).json({ token, admin });
-} catch (e) { return res.status(500).json({ message: e.message }); }
-}
+// Admin registration is disabled; create via seed from .env
 
 exports.loginAdmin = async (req, res) => {
 try {

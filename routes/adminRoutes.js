@@ -1,4 +1,4 @@
-﻿const express = require('express');
+const express = require('express');
 const router = express.Router();
 const ctrl = require('../controllers/adminController');
 const auth = require('../middleware/auth');
@@ -10,9 +10,7 @@ router.get('/:id', auth(), requirePermissions('admin:read'), ctrl.get);
 router.put('/:id', auth(), requirePermissions('admin:update'), ctrl.update);
 router.delete('/:id', auth(), requirePermissions('admin:delete'), ctrl.remove);
 
-router.post('/drivers/:driverId/approve', auth(), requirePermissions('driver:approve'), ctrl.approveDriver);
-router.post('/drivers/:driverId/documents/approve', auth(), requirePermissions('driver:documents:approve'), ctrl.approveDriverDocuments);
-router.post('/drivers/:driverId/documents/reject', auth(), requirePermissions('driver:documents:approve'), ctrl.rejectDriverDocuments);
+router.post('/drivers/:driverId/status', auth(), requirePermissions('driver:approve'), ctrl.setDriverStatus);
 router.get('/drivers/pending-documents', auth(), requirePermissions('driver:documents:approve'), ctrl.getPendingDriverDocuments);
 
 router.get('/users/filter', auth(), requirePermissions('user:read'), ctrl.filterByRole);

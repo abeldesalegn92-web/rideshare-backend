@@ -85,7 +85,6 @@ if (req.files) {
 }
 
 if (Object.keys(updateData).length > 0) {
-  updateData.documentStatus = 'pending';
   await models.Driver.update(updateData, { where: { id: req.params.id } });
 }
 
