@@ -1,0 +1,146 @@
+{
+  "info": {
+    "name": "Staff API",
+    "_postman_id": "staff-api-collection",
+    "description": "Postman collection to test Staff CRUD and role/permission endpoints",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Create Staff",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{token}}",
+            "type": "text"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json",
+            "type": "text"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n    \"fullName\": \"John Doe\",\n    \"username\": \"johndoe\",\n    \"password\": \"secret123\",\n    \"department\": \"HR\",\n    \"status\": true,\n    \"roleId\": 2\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/staff",
+          "host": ["{{baseUrl}}"],
+          "path": ["staff"]
+        }
+      }
+    },
+    {
+      "name": "List Staff",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{token}}",
+            "type": "text"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/staff",
+          "host": ["{{baseUrl}}"],
+          "path": ["staff"]
+        }
+      }
+    },
+    {
+      "name": "Get Staff By ID",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{token}}",
+            "type": "text"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/staff/:id",
+          "host": ["{{baseUrl}}"],
+          "path": ["staff", ":id"]
+        }
+      }
+    },
+    {
+      "name": "Update Staff",
+      "request": {
+        "method": "PUT",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{token}}",
+            "type": "text"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json",
+            "type": "text"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n    \"fullName\": \"John Updated\",\n    \"department\": \"Finance\",\n    \"roleId\": 3\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/staff/:id",
+          "host": ["{{baseUrl}}"],
+          "path": ["staff", ":id"]
+        }
+      }
+    },
+    {
+      "name": "Delete Staff",
+      "request": {
+        "method": "DELETE",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{token}}",
+            "type": "text"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/staff/:id",
+          "host": ["{{baseUrl}}"],
+          "path": ["staff", ":id"]
+        }
+      }
+    },
+    {
+      "name": "Toggle Staff Status",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{token}}",
+            "type": "text"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/staff/:id/toggle-status",
+          "host": ["{{baseUrl}}"],
+          "path": ["staff", ":id", "toggle-status"]
+        }
+      }
+    }
+  ],
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:3000/api"
+    },
+    {
+      "key": "token",
+      "value": ""
+    }
+  ]
+}
