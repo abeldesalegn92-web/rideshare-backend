@@ -15,9 +15,7 @@ const exists = await models.Passenger.findOne({ where: { phone } });
 if (exists) return res.status(409).json({ message: 'Phone already registered' });
 const hashed = await hashPassword(password);
 const passenger = await models.Passenger.create({ name, phone, email, emergencyContacts, password: hashed });
-const [passengerRole] = await models.Role.findOrCreate({ where: { name: 'passenger' }, defaults: { name: 'passenger' } });
-await passenger.setRoles([passengerRole]);
-const token = sign({ id: passenger.id, type: 'passenger', roles: ['passenger'], permissions: [] });
+const token = sign({ id: passenger.id, type: 'passenger', roles: [], permissions: [] });
 return res.status(201).json({ token, passenger });
 } catch (e) { return res.status(500).json({ message: e.message }); }
 }
@@ -26,12 +24,11 @@ exports.loginPassenger = async (req, res) => {
 try {
 const { email, password } = req.body;
 if (!email || !password) return res.status(400).json({ message: 'Email and password are required' });
-const passenger = await models.Passenger.unscoped().findOne({ where: { email }, include: ['roles'] });
+const passenger = await models.Passenger.unscoped().findOne({ where: { email } });
 if (!passenger) return res.status(404).json({ message: 'Not found' });
 const ok = await comparePassword(password, passenger.password);
 if (!ok) return res.status(401).json({ message: 'Invalid credentials' });
-const roleNames = (passenger.roles || []).map(r => r.name);
-const token = sign({ id: passenger.id, type: 'passenger', roles: roleNames, permissions: [] });
+const token = sign({ id: passenger.id, type: 'passenger', roles: [], permissions: [] });
 const safePassenger = passenger.get({ plain: true }); delete safePassenger.password;
 return res.json({ token, passenger: safePassenger });
 } catch (e) { return res.status(500).json({ message: e.message }); }
@@ -44,9 +41,7 @@ const exists = await models.Driver.findOne({ where: { phone } });
 if (exists) return res.status(409).json({ message: 'Phone already registered' });
 const hashed = await hashPassword(password);
 const driver = await models.Driver.create({ name, phone, email, password: hashed });
-const [driverRole] = await models.Role.findOrCreate({ where: { name: 'driver' }, defaults: { name: 'driver' } });
-await driver.setRoles([driverRole]);
-const token = sign({ id: driver.id, type: 'driver', roles: ['driver'], permissions: [] });
+const token = sign({ id: driver.id, type: 'driver', roles: [], permissions: [] });
 return res.status(201).json({ token, driver });
 } catch (e) { return res.status(500).json({ message: e.message }); }
 }
@@ -55,12 +50,11 @@ exports.loginDriver = async (req, res) => {
 try {
 const { email, password } = req.body;
 if (!email || !password) return res.status(400).json({ message: 'Email and password are required' });
-const driver = await models.Driver.unscoped().findOne({ where: { email }, include: ['roles'] });
+const driver = await models.Driver.unscoped().findOne({ where: { email } });
 if (!driver) return res.status(404).json({ message: 'Not found' });
 const ok = await comparePassword(password, driver.password);
 if (!ok) return res.status(401).json({ message: 'Invalid credentials' });
-const roleNames = (driver.roles || []).map(r => r.name);
-const token = sign({ id: driver.id, type: 'driver', roles: roleNames, permissions: [] });
+const token = sign({ id: driver.id, type: 'driver', roles: [], permissions: [] });
 const safeDriver = driver.get({ plain: true }); delete safeDriver.password;
 return res.json({ token, driver: safeDriver });
 } catch (e) { return res.status(500).json({ message: e.message }); }

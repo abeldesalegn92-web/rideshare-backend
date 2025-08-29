@@ -27,7 +27,7 @@ exports.remove = async (req, res) => { try { const count = await models.Driver.d
 exports.getMyProfile = async (req, res) => {
 try {
 const roles = req.user.roles || [];
-const isDriver = req.user.type === 'driver' || roles.includes('driver') || roles.some(r => r?.name === 'driver');
+const isDriver = req.user.type === 'driver';
 if (!isDriver) return res.status(403).json({ message: 'Only drivers can access this endpoint' });
 const driver = await models.Driver.findByPk(req.user.id, { include: ['roles'] });
 if (!driver) return res.status(404).json({ message: 'Driver not found' });
@@ -38,7 +38,7 @@ return res.json(driver);
 exports.updateMyProfile = async (req, res) => {
 try {
 const roles = req.user.roles || [];
-const isDriver = req.user.type === 'driver' || roles.includes('driver') || roles.some(r => r?.name === 'driver');
+const isDriver = req.user.type === 'driver';
 if (!isDriver) return res.status(403).json({ message: 'Only drivers can access this endpoint' });
 const data = { ...req.body };
 if (data.password) data.password = await hashPassword(data.password);
@@ -56,7 +56,7 @@ return res.json(updated);
 exports.toggleMyAvailability = async (req, res) => {
 try {
 const roles = req.user.roles || [];
-const isDriver = req.user.type === 'driver' || roles.includes('driver') || roles.some(r => r?.name === 'driver');
+const isDriver = req.user.type === 'driver';
 if (!isDriver) return res.status(403).json({ message: 'Only drivers can toggle availability' });
 const driver = await models.Driver.findByPk(req.user.id);
 if (!driver) return res.status(404).json({ message: 'Driver not found' });
