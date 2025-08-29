@@ -57,7 +57,6 @@ const { email, password } = req.body;
 if (!email || !password) return res.status(400).json({ message: 'Email and password are required' });
 const driver = await models.Driver.unscoped().findOne({ where: { email }, include: ['roles'] });
 if (!driver) return res.status(404).json({ message: 'Not found' });
-if (driver.status !== 'approved') return res.status(403).json({ message: 'Driver not approved' });
 const ok = await comparePassword(password, driver.password);
 if (!ok) return res.status(401).json({ message: 'Invalid credentials' });
 const roleNames = (driver.roles || []).map(r => r.name);

@@ -64,6 +64,7 @@ const driverId = req.params.driverId;
 
 const driver = await models.Driver.findByPk(driverId);
 if (!driver) return res.status(404).json({ message: 'Driver not found' });
+if (driver.status === 'pending') return res.status(403).json({ message: 'Cannot rate a driver with pending status' });
 
 const currentRating = driver.rating || 0;
 const ratingCount = driver.ratingCount || 0;
@@ -72,6 +73,12 @@ const newRating = ((currentRating * ratingCount) + Number(rating)) / newRatingCo
 
 await models.Driver.update({ rating: newRating, ratingCount: newRatingCount }, { where: { id: driverId } });
 const updatedDriver = await models.Driver.findByPk(driverId);
-return res.json({ message: 'Driver rated successfully', driver: updatedDriver, rating, comment });
+const publicDriver = {
+  id: updatedDriver.id,
+  name: updatedDriver.name,
+  email: updatedDriver.email,
+  rating: updatedDriver.rating,
+};
+return res.json({ message: 'Driver rated successfully', driver: publicDriver, rating, comment });
 } catch (e) { return res.status(500).json({ message: e.message }); }
 };
