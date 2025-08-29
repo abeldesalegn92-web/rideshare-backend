@@ -41,6 +41,7 @@ if (data.password) data.password = await hashPassword(data.password);
 // Strip fields drivers cannot update themselves
 delete data.documentStatus;
 delete data.verification;
+delete data.status;
 const [count] = await models.Driver.update(data, { where: { id: req.user.id } });
 if (!count) return res.status(404).json({ message: 'Driver not found' });
 const updated = await models.Driver.findByPk(req.user.id);
