@@ -1,4 +1,4 @@
-﻿const express = require('express');
+const express = require('express');
 const router = express.Router();
 const ctrl = require('../controllers/authController');
 const rateLimit = require('../middleware/rateLimit');
@@ -11,7 +11,6 @@ router.post('/driver/login', rateLimit({ windowMs: 60_000, max: 20 }), ctrl.logi
 
 router.post('/staff/login', rateLimit({ windowMs: 60_000, max: 20 }), ctrl.loginStaff);
 
-router.post('/admin/register', rateLimit({ windowMs: 60_000, max: 10 }), ctrl.registerAdmin);
 router.post('/admin/login', rateLimit({ windowMs: 60_000, max: 20 }), ctrl.loginAdmin);
 
 module.exports = router;

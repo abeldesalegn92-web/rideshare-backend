@@ -1,4 +1,4 @@
-﻿module.exports = (sequelize, DataTypes) => {
+module.exports = (sequelize, DataTypes) => {
 const Driver = sequelize.define('Driver', {
 id: { type: DataTypes.INTEGER, autoIncrement: true, primaryKey: true },
 name: { type: DataTypes.STRING, allowNull: false },
@@ -17,6 +17,7 @@ carPlate: { type: DataTypes.STRING },
 carModel: { type: DataTypes.STRING },
 carColor: { type: DataTypes.STRING },
 availability: { type: DataTypes.BOOLEAN, defaultValue: false },
+drivingLicenseNumber: { type: DataTypes.STRING },
 bankAccountNo: { type: DataTypes.STRING },
 verification: { type: DataTypes.BOOLEAN, defaultValue: false },
 carServiceDate: { type: DataTypes.DATE, allowNull: true },
@@ -24,6 +25,6 @@ bolloRenewalDate: { type: DataTypes.DATE, allowNull: true },
 insuranceExpiry: { type: DataTypes.DATE, allowNull: true },
 emergencyContacts: { type: DataTypes.TEXT, allowNull: true },
 documentStatus: { type: DataTypes.STRING, allowNull: true },
-}, { tableName: 'drivers', underscored: true });
+}, { tableName: 'drivers', underscored: true, defaultScope: { attributes: { exclude: ['password'] } } });
 return Driver;
 };

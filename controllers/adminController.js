@@ -27,8 +27,8 @@ exports.approveDriver = async (req, res) => {
 try {
 const driver = await models.Driver.findByPk(req.params.driverId);
 if (!driver) return res.status(404).json({ message: 'Driver not found' });
-driver.verification = true;
-driver.documentStatus = 'approved';
+// Toggle verification only; document status controlled by approve/reject endpoints
+driver.verification = !driver.verification;
 await driver.save();
 return res.json(driver);
 } catch (e) { return res.status(500).json({ message: e.message }); }

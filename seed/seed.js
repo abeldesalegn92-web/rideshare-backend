@@ -1,4 +1,4 @@
-﻿require('dotenv').config();
+require('dotenv').config();
 const { sequelize } = require('../config/database');
 const { models } = require('../models');
 const { hashPassword } = require('../utils/password');
@@ -46,10 +46,13 @@ for (const perm of permissions) {
   });
 }
 
-const username = 'rootadmin';
+const envAdminUser = process.env.DEFAULT_ADMIN_USER || 'rootadmin';
+const envAdminPass = process.env.DEFAULT_ADMIN_PASS || 'admin123';
+const envAdminName = process.env.DEFAULT_ADMIN_NAME || 'Root Admin';
+const envAdminEmail = process.env.DEFAULT_ADMIN_EMAIL || 'admin@example.com';
 const [admin] = await models.Admin.findOrCreate({
-where: { username },
-defaults: { fullName: 'Root Admin', username, password: await hashPassword('admin123'), email: 'admin@example.com' }
+where: { username: envAdminUser },
+defaults: { fullName: envAdminName, username: envAdminUser, password: await hashPassword(envAdminPass), email: envAdminEmail }
 });
 
 // Fix AdminRoles table structure if needed
@@ -197,6 +200,10 @@ console.log('AdminRoles data:', adminRolesData);
 // Debug: Check if superadmin role exists
 const superAdminCheck = await models.Role.findByPk(superAdminRole.id);
 console.log('Superadmin role exists:', !!superAdminCheck, 'ID:', superAdminRole.id);
+
+// Ensure default user roles exist
+await models.Role.findOrCreate({ where: { name: 'passenger' }, defaults: { name: 'passenger' } });
+await models.Role.findOrCreate({ where: { name: 'driver' }, defaults: { name: 'driver' } });
 
 // Verify the admin has the superadmin role
 const adminWithRoles = await models.Admin.findByPk(admin.id, {

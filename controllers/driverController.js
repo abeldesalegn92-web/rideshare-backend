@@ -13,7 +13,7 @@ exports.list = async (req, res) => { try { const rows = await models.Driver.find
 exports.get = async (req, res) => { try { const row = await models.Driver.findByPk(req.params.id, { include: ['roles'] }); if (!row) return res.status(404).json({ message: 'Not found' }); return res.json(row); } catch (e) { return res.status(500).json({ message: e.message }); } };
 exports.update = async (req, res) => {
 try {
-const data = req.body;
+const data = { ...req.body };
 if (data.password) data.password = await hashPassword(data.password);
 const [count] = await models.Driver.update(data, { where: { id: req.params.id } });
 if (!count) return res.status(404).json({ message: 'Not found' });
@@ -36,8 +36,11 @@ return res.json(driver);
 exports.updateMyProfile = async (req, res) => {
 try {
 if (req.user.type !== 'driver') return res.status(403).json({ message: 'Only drivers can access this endpoint' });
-const data = req.body;
+const data = { ...req.body };
 if (data.password) data.password = await hashPassword(data.password);
+// Strip fields drivers cannot update themselves
+delete data.documentStatus;
+delete data.verification;
 const [count] = await models.Driver.update(data, { where: { id: req.user.id } });
 if (!count) return res.status(404).json({ message: 'Driver not found' });
 const updated = await models.Driver.findByPk(req.user.id);

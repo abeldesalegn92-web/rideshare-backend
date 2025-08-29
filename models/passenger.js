@@ -11,6 +11,6 @@ rating: { type: DataTypes.FLOAT, defaultValue: 5.0 },
 ratingCount: { type: DataTypes.INTEGER, allowNull: false, defaultValue: 0 },
 rewardPoints: { type: DataTypes.INTEGER, allowNull: false, defaultValue: 0 },
 emergencyContacts: { type: DataTypes.TEXT, allowNull: true },
-}, { tableName: 'passengers', underscored: true });
+}, { tableName: 'passengers', underscored: true, defaultScope: { attributes: { exclude: ['password'] } } });
 return Passenger;
 };
