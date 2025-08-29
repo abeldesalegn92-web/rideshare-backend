@@ -26,13 +26,14 @@ exports.loginPassenger = async (req, res) => {
 try {
 const { email, password } = req.body;
 if (!email || !password) return res.status(400).json({ message: 'Email and password are required' });
-const passenger = await models.Passenger.findOne({ where: { email }, include: ['roles'] });
+const passenger = await models.Passenger.unscoped().findOne({ where: { email }, include: ['roles'] });
 if (!passenger) return res.status(404).json({ message: 'Not found' });
 const ok = await comparePassword(password, passenger.password);
 if (!ok) return res.status(401).json({ message: 'Invalid credentials' });
 const roleNames = (passenger.roles || []).map(r => r.name);
 const token = sign({ id: passenger.id, type: 'passenger', roles: roleNames, permissions: [] });
-return res.json({ token, passenger });
+const safePassenger = passenger.get({ plain: true }); delete safePassenger.password;
+return res.json({ token, passenger: safePassenger });
 } catch (e) { return res.status(500).json({ message: e.message }); }
 }
 
@@ -54,14 +55,15 @@ exports.loginDriver = async (req, res) => {
 try {
 const { email, password } = req.body;
 if (!email || !password) return res.status(400).json({ message: 'Email and password are required' });
-const driver = await models.Driver.findOne({ where: { email }, include: ['roles'] });
+const driver = await models.Driver.unscoped().findOne({ where: { email }, include: ['roles'] });
 if (!driver) return res.status(404).json({ message: 'Not found' });
 if (driver.status !== 'approved') return res.status(403).json({ message: 'Driver not approved' });
 const ok = await comparePassword(password, driver.password);
 if (!ok) return res.status(401).json({ message: 'Invalid credentials' });
 const roleNames = (driver.roles || []).map(r => r.name);
 const token = sign({ id: driver.id, type: 'driver', roles: roleNames, permissions: [] });
-return res.json({ token, driver });
+const safeDriver = driver.get({ plain: true }); delete safeDriver.password;
+return res.json({ token, driver: safeDriver });
 } catch (e) { return res.status(500).json({ message: e.message }); }
 }
 
@@ -80,14 +82,15 @@ return res.status(201).json({ token, staff });
 exports.loginStaff = async (req, res) => {
 try {
 const { username, password } = req.body;
-const staff = await models.Staff.findOne({ where: { username }, include: [{ association: 'roles', include: ['permissions'] }] });
+const staff = await models.Staff.unscoped().findOne({ where: { username }, include: [{ association: 'roles', include: ['permissions'] }] });
 if (!staff) return res.status(404).json({ message: 'Not found' });
 const ok = await comparePassword(password, staff.password);
 if (!ok) return res.status(401).json({ message: 'Invalid credentials' });
 const roles = (staff.roles || []).map(r => r.name);
 const perms = Array.from(new Set((staff.roles || []).flatMap(r => (r.permissions || []).map(p => p.name))));
 const token = sign({ id: staff.id, type: 'staff', roles, permissions: perms });
-return res.json({ token, staff });
+const safeStaff = staff.get({ plain: true }); delete safeStaff.password;
+return res.json({ token, staff: safeStaff });
 } catch (e) { return res.status(500).json({ message: e.message }); }
 }
 
@@ -96,14 +99,15 @@ return res.json({ token, staff });
 exports.loginAdmin = async (req, res) => {
 try {
 const { username, password } = req.body;
-const admin = await models.Admin.findOne({ where: { username }, include: [{ association: 'roles', include: ['permissions'] }] });
+const admin = await models.Admin.unscoped().findOne({ where: { username }, include: [{ association: 'roles', include: ['permissions'] }] });
 if (!admin) return res.status(404).json({ message: 'Not found' });
 const ok = await comparePassword(password, admin.password);
 if (!ok) return res.status(401).json({ message: 'Invalid credentials' });
 const roles = (admin.roles || []).map(r => r.name);
 const perms = Array.from(new Set((admin.roles || []).flatMap(r => (r.permissions || []).map(p => p.name))));
 const token = sign({ id: admin.id, type: 'admin', roles, permissions: perms });
-return res.json({ token, admin });
+const safeAdmin = admin.get({ plain: true }); delete safeAdmin.password;
+return res.json({ token, admin: safeAdmin });
 } catch (e) { return res.status(500).json({ message: e.message }); }
 }
 
