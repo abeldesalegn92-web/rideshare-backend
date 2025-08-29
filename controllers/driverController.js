@@ -26,6 +26,7 @@ exports.remove = async (req, res) => { try { const count = await models.Driver.d
 // Driver self-control methods
 exports.getMyProfile = async (req, res) => {
 try {
+if (req.user.type !== 'driver') return res.status(403).json({ message: 'Forbidden' });
 const driver = await models.Driver.findByPk(req.user.id);
 if (!driver) return res.status(404).json({ message: 'Driver not found' });
 return res.json(driver);
@@ -34,6 +35,7 @@ return res.json(driver);
 
 exports.updateMyProfile = async (req, res) => {
 try {
+if (req.user.type !== 'driver') return res.status(403).json({ message: 'Forbidden' });
 const data = { ...req.body };
 if (data.password) data.password = await hashPassword(data.password);
 // Strip fields drivers cannot update themselves
@@ -49,6 +51,7 @@ return res.json(updated);
 
 exports.toggleMyAvailability = async (req, res) => {
 try {
+if (req.user.type !== 'driver') return res.status(403).json({ message: 'Forbidden' });
 const driver = await models.Driver.findByPk(req.user.id);
 if (!driver) return res.status(404).json({ message: 'Driver not found' });
 driver.availability = !driver.availability;
@@ -94,6 +97,7 @@ return res.json({ message: 'Documents uploaded successfully', driver: updated, u
 // Driver rates passenger
 exports.ratePassenger = async (req, res) => {
 try {
+if (req.user.type !== 'driver') return res.status(403).json({ message: 'Forbidden' });
 const { rating, comment } = req.body;
 const passengerId = req.params.passengerId;
 
