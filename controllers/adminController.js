@@ -37,20 +37,7 @@ return res.json(driver);
 
 exports.getPendingDriverDocuments = async (req, res) => {
 try {
-const drivers = await models.Driver.findAll({
-where: {
-  [Op.and]: [
-    { [Op.or]: [{ status: 'pending' }] },
-    { [Op.or]: [
-      { drivingLicenseFile: { [Op.ne]: null } },
-      { nationalIdFile: { [Op.ne]: null } },
-      { vehicleRegistrationFile: { [Op.ne]: null } },
-      { insuranceFile: { [Op.ne]: null } },
-      { document: { [Op.ne]: null } },
-    ]}
-  ]
-}
-});
+const drivers = await models.Driver.findAll({ where: { status: 'pending' } });
 return res.json(drivers);
 } catch (e) { return res.status(500).json({ message: e.message }); }
 };
